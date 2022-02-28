@@ -8,6 +8,8 @@ use function Amp\Promise\wait;
 
 $urls = include __DIR__ . '/src/voku/stoppropaganda/data/url_targets.php';
 
+shuffle($urls);
+
 wait(
     parallelMap($urls, static function ($url) {
         try {
