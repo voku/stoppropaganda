@@ -18,8 +18,7 @@ if (Bootup::is_php('7.4')) {
                 $stopPropaganda = new StopPropaganda([$url]);
                 $stopPropaganda->start();
             } catch (\Throwable $e) {
-                // DEBUG
-                //var_dump($e->__toString());
+                // ignore
             }
         })
     );
