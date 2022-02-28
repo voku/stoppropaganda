@@ -11,9 +11,10 @@ DISCLAIMER: (D)DOS'ing is illegal! Usage of this tool is intended for educationa
 
 ---
 
+e.g.:
 ```shell
 git clone https://github.com/voku/stoppropaganda
 cd stoppropaganda
 composer install
-php run.php
+while :; do echo '... start again ...'; timeout 1800 php7.4 run.php; done;
 ```
