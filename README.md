@@ -11,10 +11,25 @@ DISCLAIMER: (D)DOS'ing is illegal! Usage of this tool is intended for educationa
 
 ---
 
-e.g.:
+### prepare
 ```shell
+sudo apt install wget php-cli php-zip php-curl unzip
+cd ~
+wget -qO composer-setup.php https://getcomposer.org/installer  
+sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+```
+
+### install
+```shell
+cd ~
 git clone https://github.com/voku/stoppropaganda
 cd stoppropaganda
-composer install
-while :; do echo '... start again ...'; timeout 1800 php7.4 run.php; done;
+/usr/local/bin/composer install
+```
+
+### use
+e.g.:
+```shell
+cd ~/stoppropaganda/
+while :; do echo '... start again ...'; timeout 1800 php run.php; done;
 ```
