@@ -17,11 +17,11 @@ class StopPropaganda
     /**
      * @var string[]
      */
-    private array $browserAgents = [];
+    private $browserAgents = [];
     /**
      * @var string[]
      */
-    private array $urlTargets = [];
+    private $urlTargets = [];
 
     public function __construct($urlTargets = [])
     {
@@ -101,8 +101,13 @@ class StopPropaganda
                             $outerLoopUrls[$urlTmp] = $urlTmp;
                         }
 
-                        $stopPropagandaInner = new StopPropaganda(\array_values($urls));
-                        $stopPropagandaInner->start();
+                        try {
+                            $stopPropagandaInner = new StopPropaganda(\array_values($urls));
+                            $stopPropagandaInner->start();
+                        } catch (\Throwable $e) {
+                            // DEBUG
+                            //var_dump($e->__toString());
+                        }
                     }
                 }
             }
@@ -124,8 +129,13 @@ class StopPropaganda
         $multi->start();
 
         if ($outerLoopUrls !== []) {
-            $stopPropagandaInner = new StopPropaganda(\array_values($outerLoopUrls));
-            $stopPropagandaInner->start();
+            try {
+                $stopPropagandaInner = new StopPropaganda(\array_values($outerLoopUrls));
+                $stopPropagandaInner->start();
+            } catch (\Throwable $e) {
+                // DEBUG
+                //var_dump($e->__toString());
+            }
         }
     }
 }
