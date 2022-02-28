@@ -1,0 +1,30 @@
+{
+  "name": "voku/stoppropaganda",
+  "description": "anti russia propaganda",
+  "type": "library",
+  "keywords": [
+    "UkraineKrieg",
+    "Russland",
+    "nowar",
+    "propaganda"
+  ],
+  "homepage": "https://github.com/voku/stoppropaganda",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Lars Moelleken",
+      "email": "lars@moelleken.org",
+      "homepage": "https://www.moelleken.org/"
+    }
+  ],
+  "require": {
+    "php": ">=7.0.0",
+    "voku/httpful": "~2.4",
+    "amphp/parallel-functions": "^1.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "voku\\stoppropaganda\\": "src/voku/stoppropaganda/"
+    }
+  }
+}
