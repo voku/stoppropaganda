@@ -7,6 +7,8 @@ Mykhailo Federov (Vice Prime Minister and Minister of Digital Transformation of 
 
 Anyone who knows someone from Russia should send them a personal message with a link to Zelenskyy's speech to the Russian people. It is important that as many as possible in Russia hear his words. Write to all Russians you know!  #Ukraine 🇺🇦 🇷🇺 https://youtu.be/Fwzb_JX7u04
 
+INFO: If you do not know anything about PHP, you maybe want to check out this HTML/JS code: https://github.com/ajax-lives/NoRussian/
+
 DISCLAIMER: (D)DOS'ing is illegal! Usage of this tool is intended for educational purposes only.
 
 ---
