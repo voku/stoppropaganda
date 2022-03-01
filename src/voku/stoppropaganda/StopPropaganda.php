@@ -9,7 +9,7 @@ use Httpful\Factory;
 use Httpful\Http;
 use Httpful\Request;
 use Httpful\Response;
-use Throwable;
+use Httpful\Uri;
 use voku\helper\HtmlDomParser;
 use voku\helper\UTF8;
 use function array_values;
@@ -27,6 +27,11 @@ class StopPropaganda
      * @var null|string[]
      */
     private static $urlTargetsAll;
+
+    /**
+     * @var array<string, string>
+     */
+    private static $urlsDone = [];
 
     /**
      * @var string[]
@@ -87,26 +92,79 @@ class StopPropaganda
 
                     if ($dom) {
                         $uri = $request->getUri();
+                        assert($uri instanceof Uri);
+
                         $urls = [];
+                        $baseTag = $dom->findOneOrFalse('base');
+                        if ($baseTag) {
+                            $baseUrl = $baseTag->getAttribute('href');
+                        } else {
+                            $baseUrl = null;
+                        }
                         $links = $dom->findMulti('a');
                         foreach ($links as $link) {
                             $href = $link->getAttribute('href');
+
+                            // skip js links
+                            if (
+                                strpos($href, '(') !== false
+                                ||
+                                strpos($href, ')') !== false
+                                ||
+                                strpos($href, 'javascript:') === 0
+                            ) {
+                                continue;
+                            }
+
+                            // skip mailto links
+                            if (strpos($href, 'mailto:') === 0) {
+                                continue;
+                            }
+
+                            // skip tel links
+                            if (strpos($href, 'tel:') === 0) {
+                                continue;
+                            }
+
+                            // fix url without scheme
+                            if (
+                                !UTF8::is_url($href)
+                                &&
+                                strpos($href, '//') === 0
+                            ) {
+                                $href = $uri->getScheme() . ':' . $href;
+                            }
+
+                            // fix relative url
+                            if (!UTF8::is_url($href)) {
+                                if ($baseUrl) {
+                                    $href = rtrim($baseUrl, '/') . '/' . ltrim($href, '/');
+                                } else {
+                                    $href = $uri->getScheme() . '://' . $uri->getHost() . '/' . ltrim($href, '/');
+                                }
+                            }
+
                             $newUri = (new Factory())->createUri($href);
-                            if ($uri && UTF8::is_url($href) && $newUri->getHost() === $uri->getHost()) {
+                            if (
+                                !isset(self::$urlsDone[$href])
+                                &&
+                                UTF8::is_url($href)
+                                &&
+                                $newUri->__toString() !== $uri->__toString()
+                                &&
+                                $newUri->getHost() === $uri->getHost()
+                            ) {
+                                self::$urlsDone[$href] = $href;
                                 $urls[$href] = $href;
                             }
                         }
-                        if ($urls === [] && $uri) {
+
+                        if ($urls === []) {
                             $urlTmp = $uri->__toString();
                             $outerLoopUrls[$urlTmp] = $urlTmp;
-                        }
-
-                        try {
+                        } else {
                             $stopPropagandaInner = new StopPropaganda(array_values($urls));
                             $stopPropagandaInner->start();
-                        } catch (Throwable $e) {
-                            // DEBUG
-                            var_dump($e->__toString());
                         }
                     }
                 }
@@ -130,13 +188,8 @@ class StopPropaganda
         $multi->start();
 
         if ($outerLoopUrls !== []) {
-            try {
-                $stopPropagandaInner = new StopPropaganda(array_values($outerLoopUrls));
-                $stopPropagandaInner->start();
-            } catch (Throwable $e) {
-                // DEBUG
-                var_dump($e->__toString());
-            }
+            $stopPropagandaInner = new StopPropaganda(array_values($outerLoopUrls));
+            $stopPropagandaInner->start();
         }
     }
 }
