@@ -15,7 +15,7 @@ DISCLAIMER: (D)DOS'ing is illegal! Usage of this tool is intended for educationa
 
 ### prepare
 ```shell
-sudo apt install wget php-cli php-zip php-curl unzip
+sudo apt install wget php-cli php-zip php-curl unzip tor
 cd ~
 wget -qO composer-setup.php https://getcomposer.org/installer  
 sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer

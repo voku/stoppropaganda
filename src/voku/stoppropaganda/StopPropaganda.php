@@ -172,7 +172,7 @@ class StopPropaganda
         );
 
         foreach ($this->urlTargets as $url) {
-            $request = (new Request($this->random_float(0, 100) > 50 ? Http::GET : Http::POST))
+            $request = (new Request($this->random_float(0, 100) > 25 ? Http::GET : Http::POST))
                   ->withUriFromString($url)
                   ->withUserAgent($this->getRandomBrowserAgent())
                   ->followRedirects()
@@ -180,6 +180,7 @@ class StopPropaganda
                   ->withTimeout($this->random_float(1, 5))
                   ->withContentEncoding($this->random_float(0, 100) > 50 ? 'gzip' : 'deflate')
                   ->withProtocolVersion($this->random_float(0, 100) > 80 ? Http::HTTP_2_0 : Http::HTTP_1_1)
+                  ->useSocks5Proxy('127.0.0.1', 9050)
                   ->expectsHtml();
 
             $multi->add_request($request);
