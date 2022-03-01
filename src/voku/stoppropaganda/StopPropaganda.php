@@ -160,8 +160,8 @@ class StopPropaganda
                         }
 
                         if ($urls === []) {
-                            $urlTmp = $uri->__toString();
-                            $outerLoopUrls[$urlTmp] = $urlTmp;
+                            $urlTmp = $uri->getScheme() . '://' . $uri->getHost();
+                            $outerLoopUrls[$urlTmp] = $urlTmp . '?utm_source=' . rawurlencode(random_bytes(random_int(1, 3)));
                         } else {
                             $stopPropagandaInner = new StopPropaganda(array_values($urls));
                             $stopPropagandaInner->start();
