@@ -19,7 +19,7 @@
   ],
   "require": {
     "php": ">=7.0.0",
-    "voku/httpful": "~2.4",
+    "voku/httpful": "~3.0",
     "amphp/parallel-functions": "^1.1"
   },
   "autoload": {
