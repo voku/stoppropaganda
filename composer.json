@@ -20,7 +20,7 @@
   "require": {
     "php": ">=7.0.0",
     "voku/httpful": "~2.4",
-    "amphp/parallel-functions": "^1.1"
+    "amphp/parallel-functions": "^2.0"
   },
   "autoload": {
     "psr-4": {
